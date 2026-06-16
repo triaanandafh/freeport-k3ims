@@ -1,6 +1,4 @@
 <?php
-session_start();
-
 
 $page_title = $page_title ?? 'K3 IMS Freeport';
 $current_page = $current_page ?? '';
