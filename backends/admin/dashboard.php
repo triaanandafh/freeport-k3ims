@@ -1,4 +1,5 @@
 <?php
+require '../koneksi/auth_admin.php';
 
 $page_title = 'Dashboard K3 IMS';
 $current_page = 'dashboard';

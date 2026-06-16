@@ -1,12 +1,6 @@
 <?php
 session_start();
 
-/* dummy session sementara */
-if (!isset($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = 1;
-    $_SESSION['fullname'] = 'Admin Demo';
-    $_SESSION['role'] = 'admin';
-}
 
 $page_title = $page_title ?? 'K3 IMS Freeport';
 $current_page = $current_page ?? '';
