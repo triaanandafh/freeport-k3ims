@@ -116,7 +116,7 @@ function active($page, $current)
         </a>
 
         <div id="collapseSafety"
-            class="collapse <?= in_array($current_page, ['safety_checks','reports','documents']) ? 'show' : '' ?>"
+            class="collapse <?= in_array($current_page, ['safety_checks','reports','documents','safety_checks','safety_report']) ? 'show' : '' ?>"
             data-parent="#accordionSidebar">
 
             <div class="bg-white py-2 collapse-inner rounded">
@@ -124,6 +124,11 @@ function active($page, $current)
                 <a class="collapse-item <?= active('safety_checks', $current_page) ?>"
                     href="safety_checks.php">
                     Safety Checks
+                </a>
+
+                <a class="collapse-item <?= active('safety_report', $current_page) ?>"
+                    href="safety_report.php">
+                    Safety Report
                 </a>
 
                 <a class="collapse-item <?= active('reports', $current_page) ?>"
@@ -146,9 +151,9 @@ function active($page, $current)
     <hr class="sidebar-divider">
 
 
-    <!-- SOP & COMPLIANCE (BARU) -->
+    <!-- SOP Management -->
     <div class="sidebar-heading">
-        SOP & Compliance
+        SOP Management
     </div>
 
     <li class="nav-item">
@@ -160,12 +165,12 @@ function active($page, $current)
             aria-expanded="true">
 
             <i class="fas fa-fw fa-tasks"></i>
-            <span>SOP & Compliance</span>
+            <span>SOP Management</span>
 
         </a>
 
         <div id="collapseCompliance"
-            class="collapse <?= in_array($current_page, ['sop','compliance_checks','compliance_report']) ? 'show' : '' ?>"
+            class="collapse <?= in_array($current_page, ['sop']) ? 'show' : '' ?>"
             data-parent="#accordionSidebar">
 
             <div class="bg-white py-2 collapse-inner rounded">
@@ -173,16 +178,6 @@ function active($page, $current)
                 <a class="collapse-item <?= active('sop', $current_page) ?>"
                     href="sop.php">
                     SOP Management
-                </a>
-
-                <a class="collapse-item <?= active('compliance_checks', $current_page) ?>"
-                    href="compliance_checks.php">
-                    Compliance Checks
-                </a>
-
-                <a class="collapse-item <?= active('compliance_report', $current_page) ?>"
-                    href="compliance_report.php">
-                    Compliance Report
                 </a>
 
             </div>
