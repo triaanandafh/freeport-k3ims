@@ -1,8 +1,32 @@
 <?php
 require '../koneksi/auth_admin.php';
+require '../koneksi/koneksi.php';
 
 $page_title = 'Dashboard K3 IMS';
 $current_page = 'dashboard';
+
+$total_employees = pg_fetch_result(
+    pg_query($conn, "SELECT COUNT(*) FROM employees"),
+    0, 0
+);
+
+$open_reports = pg_fetch_result(
+    pg_query($conn, "SELECT COUNT(*) FROM reports WHERE status = 'open'"),
+    0, 0
+);
+
+$active_documents = pg_fetch_result(
+    pg_query($conn, "SELECT COUNT(*) FROM documents WHERE status = 'active'"),
+    0, 0
+);
+
+$monthly_audits = pg_fetch_result(
+    pg_query($conn, "
+        SELECT COUNT(*) FROM audits
+        WHERE date_trunc('month', audit_date) = date_trunc('month', CURRENT_DATE)
+    "),
+    0, 0
+);
 
 require 'include/header.php';
 
@@ -25,7 +49,7 @@ require 'include/header.php';
                 </div>
 
                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                    2500
+                    <?= $total_employees ?>
                 </div>
 
             </div>
@@ -45,7 +69,7 @@ require 'include/header.php';
                 </div>
 
                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                    12
+                    <?= $open_reports ?>
                 </div>
 
             </div>
@@ -65,7 +89,7 @@ require 'include/header.php';
                 </div>
 
                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                    36
+                    <?= $active_documents ?>
                 </div>
 
             </div>
@@ -85,7 +109,7 @@ require 'include/header.php';
                 </div>
 
                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                    8
+                    <?= $monthly_audits ?>
                 </div>
 
             </div>
