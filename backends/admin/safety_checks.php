@@ -8,8 +8,7 @@ $current_page = "safety_checks";
 
 
 /* helper checkbox */
-function bool_value($name)
-{
+function bool_val($name) {
     return isset($_POST[$name]) ? 'TRUE' : 'FALSE';
 }
 
@@ -19,64 +18,50 @@ function bool_value($name)
 ========================= */
 if (isset($_POST['add'])) {
 
-    $employee_id = $_POST['employee_id'];
+    $employee_id   = $_POST['employee_id'];
+    $activity_id   = $_POST['activity_id'];
+    $checked_by    = $_SESSION['user_id'];
+    $check_date    = $_POST['check_date'];
 
-    $safety_briefing = bool_value('safety_briefing');
-    $body_fit = bool_value('body_fit');
+    $apd           = bool_val('apd_compliant');
+    $briefing      = bool_val('briefing_done');
+    $jsa           = bool_val('jsa_understood');
+    $equipment     = bool_val('equipment_checked');
+    $is_compliant  = bool_val('is_compliant');
 
-    $safety_helmet = bool_value('safety_helmet');
-    $safety_vest = bool_value('safety_vest');
-    $safety_boots = bool_value('safety_boots');
-    $safety_glasses = bool_value('safety_glasses');
-
-    $equipment_checked = bool_value('equipment_checked');
-    $jsa_understood = bool_value('jsa_understood');
-    $work_area_safe = bool_value('work_area_safe');
-
-    $is_compliant = bool_value('is_compliant');
+    $notes         = $_POST['notes'];
 
     pg_query($conn, "
 
-        INSERT INTO employee_safety_checks
+        INSERT INTO safety_checks
         (
             id,
             employee_id,
-
-            safety_briefing,
-            body_fit,
-
-            safety_helmet,
-            safety_vest,
-            safety_boots,
-            safety_glasses,
-
-            equipment_checked,
+            activity_id,
+            checked_by,
+            check_date,
+            apd_compliant,
+            briefing_done,
             jsa_understood,
-            work_area_safe,
-
-            is_compliant
+            equipment_checked,
+            is_compliant,
+            notes
         )
-
         VALUES
         (
             gen_random_uuid(),
-
             '$employee_id',
-
-            $safety_briefing,
-            $body_fit,
-
-            $safety_helmet,
-            $safety_vest,
-            $safety_boots,
-            $safety_glasses,
-
-            $equipment_checked,
-            $jsa_understood,
-            $work_area_safe,
-
-            $is_compliant
+            '$activity_id',
+            '$checked_by',
+            '$check_date',
+            $apd,
+            $briefing,
+            $jsa,
+            $equipment,
+            $is_compliant,
+            '$notes'
         )
+
     ");
 
     header("Location: safety_checks.php");
@@ -91,35 +76,53 @@ if (isset($_GET['delete'])) {
 
     $id = $_GET['delete'];
 
-    pg_query($conn,"
-        DELETE FROM employee_safety_checks
-        WHERE id='$id'
-    ");
+    pg_query($conn, "DELETE FROM safety_checks WHERE id='$id'");
 
     header("Location: safety_checks.php");
     exit;
 }
 
 
-/* ambil data */
+/* ambil data checks */
 $data = pg_query($conn, "
 
-    SELECT employee_safety_checks.*, employees.fullname
+    SELECT
+        safety_checks.*,
+        employees.fullname AS employee_name,
+        sop_activities.activity_name,
+        departments.department_name
 
-    FROM employee_safety_checks
+    FROM safety_checks
 
     JOIN employees
-    ON employee_safety_checks.employee_id = employees.id
+    ON safety_checks.employee_id = employees.id
 
-    ORDER BY checked_at DESC
+    JOIN sop_activities
+    ON safety_checks.activity_id = sop_activities.id
+
+    JOIN departments
+    ON employees.department_id = departments.id
+
+    ORDER BY safety_checks.check_date DESC
 
 ");
 
 
-/* dropdown employee */
-$employees = pg_query($conn,"
-    SELECT * FROM employees
-    ORDER BY fullname
+/* dropdown employees */
+$employees = pg_query($conn, "
+    SELECT employees.*, departments.department_name
+    FROM employees
+    JOIN departments ON employees.department_id = departments.id
+    ORDER BY employees.fullname ASC
+");
+
+
+/* dropdown activities */
+$activities = pg_query($conn, "
+    SELECT sop_activities.*, departments.department_name
+    FROM sop_activities
+    JOIN departments ON sop_activities.department_id = departments.id
+    ORDER BY departments.department_name ASC, sop_activities.activity_name ASC
 ");
 
 require 'include/header.php';
@@ -128,115 +131,122 @@ require 'include/header.php';
 
 
 <h1 class="h3 mb-4 text-gray-800">
-    Employee Safety Checks
+    Safety Checks
 </h1>
 
 
 <button
-class="btn btn-primary mb-3"
-data-toggle="modal"
-data-target="#addModal">
+    class="btn btn-primary mb-3"
+    data-toggle="modal"
+    data-target="#addModal">
 
-Add Safety Check
+    <i class="fas fa-plus fa-sm"></i> Add Check
 
 </button>
 
 
-
 <div class="card shadow mb-4">
 
-<div class="card-body">
+    <div class="card-body">
 
-<div class="table-responsive">
+        <div class="table-responsive">
 
-<table class="table table-bordered">
+            <table class="table table-bordered">
 
-<thead>
+                <thead>
 
-<tr>
-    <th>Employee</th>
-    <th>Helmet</th>
-    <th>Vest</th>
-    <th>Boots</th>
-    <th>Glasses</th>
-    <th>Briefing</th>
-    <th>JSA</th>
-    <th>Status</th>
-    <th>Action</th>
-</tr>
+                    <tr>
+                        <th>No</th>
+                        <th>Tanggal</th>
+                        <th>Karyawan</th>
+                        <th>Dept</th>
+                        <th>Activity</th>
+                        <th>APD</th>
+                        <th>Briefing</th>
+                        <th>JSA</th>
+                        <th>Equipment</th>
+                        <th>Status</th>
+                        <th width="80">Aksi</th>
+                    </tr>
 
-</thead>
+                </thead>
 
-<tbody>
+                <tbody>
 
-<?php while($row = pg_fetch_assoc($data)): ?>
+                <?php
+                $no = 1;
+                while ($row = pg_fetch_assoc($data)):
+                ?>
 
-<tr>
+                <tr>
 
-<td><?= $row['fullname'] ?></td>
+                    <td><?= $no++ ?></td>
 
-<td><?= $row['safety_helmet'] == 't' ? '✓' : 'X' ?></td>
+                    <td><?= $row['check_date'] ?></td>
 
-<td><?= $row['safety_vest'] == 't' ? '✓' : 'X' ?></td>
+                    <td><?= htmlspecialchars($row['employee_name']) ?></td>
 
-<td><?= $row['safety_boots'] == 't' ? '✓' : 'X' ?></td>
+                    <td><?= htmlspecialchars($row['department_name']) ?></td>
 
-<td><?= $row['safety_glasses'] == 't' ? '✓' : 'X' ?></td>
+                    <td><?= htmlspecialchars($row['activity_name']) ?></td>
 
-<td><?= $row['safety_briefing'] == 't' ? '✓' : 'X' ?></td>
+                    <td class="text-center">
+                        <?= $row['apd_compliant'] == 't'
+                            ? '<span class="badge badge-success">✓</span>'
+                            : '<span class="badge badge-danger">✗</span>' ?>
+                    </td>
 
-<td><?= $row['jsa_understood'] == 't' ? '✓' : 'X' ?></td>
+                    <td class="text-center">
+                        <?= $row['briefing_done'] == 't'
+                            ? '<span class="badge badge-success">✓</span>'
+                            : '<span class="badge badge-danger">✗</span>' ?>
+                    </td>
 
-<td>
+                    <td class="text-center">
+                        <?= $row['jsa_understood'] == 't'
+                            ? '<span class="badge badge-success">✓</span>'
+                            : '<span class="badge badge-danger">✗</span>' ?>
+                    </td>
 
-<?php if($row['is_compliant'] == 't'): ?>
+                    <td class="text-center">
+                        <?= $row['equipment_checked'] == 't'
+                            ? '<span class="badge badge-success">✓</span>'
+                            : '<span class="badge badge-danger">✗</span>' ?>
+                    </td>
 
-<span class="badge badge-success">
-PASS
-</span>
+                    <td>
+                        <?php if ($row['is_compliant'] == 't'): ?>
+                        <span class="badge badge-success">PASS</span>
+                        <?php else: ?>
+                        <span class="badge badge-danger">FAIL</span>
+                        <?php endif; ?>
+                    </td>
 
-<?php else: ?>
+                    <td>
+                        <a
+                            href="safety_checks.php?delete=<?= $row['id'] ?>"
+                            onclick="return confirm('Hapus data ini?')"
+                            class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash fa-xs"></i>
+                        </a>
+                    </td>
 
-<span class="badge badge-danger">
-FAIL
-</span>
+                </tr>
 
-<?php endif; ?>
+                <?php endwhile; ?>
 
-</td>
+                </tbody>
 
-<td>
+            </table>
 
-<a
-href="safety_checks.php?delete=<?= $row['id'] ?>"
-onclick="return confirm('Delete?')"
-class="btn btn-danger btn-sm">
+        </div>
 
-Delete
-
-</a>
-
-</td>
-
-</tr>
-
-<?php endwhile; ?>
-
-</tbody>
-
-</table>
+    </div>
 
 </div>
-
-</div>
-
-</div>
-
 
 
 <!-- ADD MODAL -->
-
-
 <div class="modal fade" id="addModal">
 
 <div class="modal-dialog">
@@ -246,105 +256,92 @@ Delete
 <form method="POST">
 
 <div class="modal-header">
-
-<h5>Safety Inspection</h5>
-
+<h5>Add Safety Check</h5>
 </div>
-
 
 <div class="modal-body">
 
+<!-- Tanggal -->
+<label class="small font-weight-bold">Tanggal Pengecekan</label>
+<input
+    type="date"
+    name="check_date"
+    class="form-control mb-3"
+    value="<?= date('Y-m-d') ?>"
+    required>
 
-<select
-name="employee_id"
-class="form-control mb-3"
-required>
-
-<option value="">Choose Employee</option>
-
-<?php while($emp = pg_fetch_assoc($employees)): ?>
-
+<!-- Karyawan -->
+<label class="small font-weight-bold">Karyawan</label>
+<select name="employee_id" class="form-control mb-3" required>
+<option value="">Pilih Karyawan</option>
+<?php while ($emp = pg_fetch_assoc($employees)): ?>
 <option value="<?= $emp['id'] ?>">
-<?= $emp['fullname'] ?>
+    <?= htmlspecialchars($emp['fullname']) ?>
+    (<?= htmlspecialchars($emp['department_name']) ?>)
 </option>
-
 <?php endwhile; ?>
-
 </select>
 
-
-
-<div class="form-check">
-<input type="checkbox" name="safety_briefing">
- Safety Briefing
-</div>
-
-<div class="form-check">
-<input type="checkbox" name="body_fit">
- Body Fit
-</div>
-
-<div class="form-check">
-<input type="checkbox" name="safety_helmet">
- Safety Helmet
-</div>
-
-<div class="form-check">
-<input type="checkbox" name="safety_vest">
- Safety Vest
-</div>
-
-<div class="form-check">
-<input type="checkbox" name="safety_boots">
- Safety Boots
-</div>
-
-<div class="form-check">
-<input type="checkbox" name="safety_glasses">
- Safety Glasses
-</div>
-
-<div class="form-check">
-<input type="checkbox" name="equipment_checked">
- Equipment Checked
-</div>
-
-<div class="form-check">
-<input type="checkbox" name="jsa_understood">
- Understand JSA
-</div>
-
-<div class="form-check">
-<input type="checkbox" name="work_area_safe">
- Safe Work Area
-</div>
-
+<!-- Activity SOP -->
+<label class="small font-weight-bold">SOP Activity</label>
+<select name="activity_id" class="form-control mb-3" required>
+<option value="">Pilih Activity</option>
+<?php while ($act = pg_fetch_assoc($activities)): ?>
+<option value="<?= $act['id'] ?>">
+    <?= htmlspecialchars($act['activity_name']) ?>
+    — <?= htmlspecialchars($act['department_name']) ?>
+</option>
+<?php endwhile; ?>
+</select>
 
 <hr>
 
+<label class="small font-weight-bold d-block mb-2">Hasil Pengecekan</label>
 
-<div class="form-check">
-
-<input type="checkbox" name="is_compliant">
-
- Final Compliance Passed
-
+<div class="form-check mb-2">
+    <input type="checkbox" name="apd_compliant" class="form-check-input" id="apd">
+    <label class="form-check-label" for="apd">
+        APD lengkap dan sesuai standar
+    </label>
 </div>
 
-
+<div class="form-check mb-2">
+    <input type="checkbox" name="briefing_done" class="form-check-input" id="briefing">
+    <label class="form-check-label" for="briefing">
+        Safety briefing telah dilakukan
+    </label>
 </div>
 
+<div class="form-check mb-2">
+    <input type="checkbox" name="jsa_understood" class="form-check-input" id="jsa">
+    <label class="form-check-label" for="jsa">
+        JSA dipahami karyawan
+    </label>
+</div>
+
+<div class="form-check mb-3">
+    <input type="checkbox" name="equipment_checked" class="form-check-input" id="equipment">
+    <label class="form-check-label" for="equipment">
+        Peralatan sudah dicek
+    </label>
+</div>
+
+<hr>
+
+<div class="form-check mb-3">
+    <input type="checkbox" name="is_compliant" class="form-check-input" id="compliant">
+    <label class="form-check-label font-weight-bold" for="compliant">
+        ✓ Dinyatakan COMPLY (PASS)
+    </label>
+</div>
+
+<label class="small font-weight-bold">Catatan (opsional)</label>
+<textarea name="notes" class="form-control" rows="2" placeholder="Catatan pengecekan..."></textarea>
+
+</div>
 
 <div class="modal-footer">
-
-<button
-name="add"
-class="btn btn-primary">
-
-Save
-
-</button>
-
+<button name="add" class="btn btn-primary">Simpan</button>
 </div>
 
 </form>
