@@ -62,30 +62,29 @@ function active($page, $current)
         </a>
 
         <div id="collapseMaster"
-            class="collapse"
+            class="collapse <?= in_array($current_page, ['departments','employees','users','org_chart']) ? 'show' : '' ?>"
             data-parent="#accordionSidebar">
 
             <div class="bg-white py-2 collapse-inner rounded">
 
                 <a class="collapse-item <?= active('departments', $current_page) ?>"
                     href="departments.php">
-
                     Departments
-
                 </a>
 
                 <a class="collapse-item <?= active('employees', $current_page) ?>"
                     href="employees.php">
-
                     Employees
+                </a>
 
+                <a class="collapse-item <?= active('org_chart', $current_page) ?>"
+                    href="org_chart.php">
+                    Org Chart
                 </a>
 
                 <a class="collapse-item <?= active('users', $current_page) ?>"
                     href="users.php">
-
                     System Users
-
                 </a>
 
             </div>
@@ -117,30 +116,68 @@ function active($page, $current)
         </a>
 
         <div id="collapseSafety"
-            class="collapse"
+            class="collapse <?= in_array($current_page, ['safety_checks','reports','documents','safety_checks','safety_report']) ? 'show' : '' ?>"
             data-parent="#accordionSidebar">
 
             <div class="bg-white py-2 collapse-inner rounded">
 
                 <a class="collapse-item <?= active('safety_checks', $current_page) ?>"
                     href="safety_checks.php">
-
                     Safety Checks
+                </a>
 
+                <a class="collapse-item <?= active('safety_report', $current_page) ?>"
+                    href="safety_report.php">
+                    Safety Report
                 </a>
 
                 <a class="collapse-item <?= active('reports', $current_page) ?>"
                     href="reports.php">
-
                     Incident Reports
-
                 </a>
 
                 <a class="collapse-item <?= active('documents', $current_page) ?>"
                     href="documents.php">
-
                     K3 Documents
+                </a>
 
+            </div>
+
+        </div>
+
+    </li>
+
+
+    <hr class="sidebar-divider">
+
+
+    <!-- SOP Management -->
+    <div class="sidebar-heading">
+        SOP Management
+    </div>
+
+    <li class="nav-item">
+
+        <a class="nav-link collapsed"
+            href="#"
+            data-toggle="collapse"
+            data-target="#collapseCompliance"
+            aria-expanded="true">
+
+            <i class="fas fa-fw fa-tasks"></i>
+            <span>SOP Management</span>
+
+        </a>
+
+        <div id="collapseCompliance"
+            class="collapse <?= in_array($current_page, ['sop']) ? 'show' : '' ?>"
+            data-parent="#accordionSidebar">
+
+            <div class="bg-white py-2 collapse-inner rounded">
+
+                <a class="collapse-item <?= active('sop', $current_page) ?>"
+                    href="sop.php">
+                    SOP Management
                 </a>
 
             </div>
@@ -155,7 +192,7 @@ function active($page, $current)
 
     <!-- AUDIT & COMPLIANCE -->
     <div class="sidebar-heading">
-        Compliance
+        Audit
     </div>
 
     <li class="nav-item">
@@ -172,23 +209,19 @@ function active($page, $current)
         </a>
 
         <div id="collapseAudit"
-            class="collapse"
+            class="collapse <?= in_array($current_page, ['audits','audit_checklists']) ? 'show' : '' ?>"
             data-parent="#accordionSidebar">
 
             <div class="bg-white py-2 collapse-inner rounded">
 
                 <a class="collapse-item <?= active('audits', $current_page) ?>"
                     href="audits.php">
-
                     Audit Management
-
                 </a>
 
                 <a class="collapse-item <?= active('audit_checklists', $current_page) ?>"
                     href="audit_checklists.php">
-
                     Audit Checklists
-
                 </a>
 
             </div>
