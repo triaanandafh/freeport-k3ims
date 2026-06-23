@@ -1,5 +1,6 @@
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
+    <!-- Sidebar Toggle Mobile -->
     <button id="sidebarToggleTop"
         class="btn btn-link d-md-none rounded-circle mr-3">
 
@@ -7,61 +8,20 @@
 
     </button>
 
-    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3">
+    <div class="mx-auto text-center">
 
-        <div class="input-group">
+        <h4 class="mb-0 font-weight-bold text-gray-800">
 
-            <input type="text"
-                class="form-control bg-light border-0 small"
-                placeholder="Search...">
+            Sistem Informasi Manajemen K3
 
-            <div class="input-group-append">
+        </h4>
 
-                <button class="btn btn-primary">
+        <small class="text-muted">
 
-                    <i class="fas fa-search fa-sm"></i>
+            PT. Freeport Indonesia
 
-                </button>
+        </small>
 
-            </div>
-
-        </div>
-
-    </form>
-
-    <ul class="navbar-nav ml-auto">
-
-        <li class="nav-item dropdown no-arrow mx-1">
-
-            <a class="nav-link dropdown-toggle" href="#">
-
-                <i class="fas fa-bell fa-fw"></i>
-
-                <span class="badge badge-danger badge-counter">3</span>
-
-            </a>
-
-        </li>
-
-        <div class="topbar-divider d-none d-sm-block"></div>
-
-        <li class="nav-item dropdown no-arrow">
-
-            <a class="nav-link dropdown-toggle" href="#">
-
-                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
-
-                    <?= htmlspecialchars($_SESSION['fullname']) ?>
-
-                </span>
-
-                <img class="img-profile rounded-circle"
-                    src="../img/undraw_profile.svg">
-
-            </a>
-
-        </li>
-
-    </ul>
+    </div>
 
 </nav>
