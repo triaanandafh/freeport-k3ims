@@ -151,6 +151,11 @@ function active($page, $current)
                     K3 Documents
                 </a>
 
+                <a class="collapse-item <?= active('hazards', $current_page) ?>"
+                    href="hazards.php">
+                    Hazard Identification
+                </a>
+
             </div>
 
         </div>
