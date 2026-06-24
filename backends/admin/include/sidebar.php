@@ -116,7 +116,7 @@ function active($page, $current)
         </a>
 
         <div id="collapseSafety"
-            class="collapse <?= in_array($current_page, ['safety_checks','reports','documents','safety_checks','safety_report']) ? 'show' : '' ?>"
+            class="collapse <?= in_array($current_page, ['safety_checks','reports','documents','safety_checks','safety_report','capa']) ? 'show' : '' ?>"
             data-parent="#accordionSidebar">
 
             <div class="bg-white py-2 collapse-inner rounded">
@@ -134,6 +134,11 @@ function active($page, $current)
                 <a class="collapse-item <?= active('reports', $current_page) ?>"
                     href="reports.php">
                     Incident Reports
+                </a>
+
+                <a class="collapse-item <?= active('capa', $current_page) ?>"
+                    href="capa.php">
+                    CAPA Tracking
                 </a>
 
                 <a class="collapse-item <?= active('documents', $current_page) ?>"
