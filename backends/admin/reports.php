@@ -44,9 +44,51 @@ if (isset($_POST['add'])) {
             '$severity',
             '$status'
         )
+        RETURNING id
     ";
 
-    pg_query($conn, $query);
+    $insert = pg_query($conn, $query);
+    $new_report = pg_fetch_assoc($insert);
+    $report_id = $new_report['id'];
+
+
+    /* ===== AUTO-CREATE CAPA dari report baru ===== */
+    $due_days = [
+        'critical' => 1,
+        'high'     => 3,
+        'medium'   => 7,
+        'low'      => 14,
+    ];
+    $days = $due_days[$severity] ?? 7;
+
+    $capa_title = pg_escape_string($conn, 'Tindak Lanjut: ' . $title);
+    $capa_desc  = pg_escape_string($conn, 'Tindak lanjut atas ' . $report_type . ' di ' . $location . '. ' . $description);
+
+    $pic_q = pg_query($conn, "
+        SELECT id FROM employees
+        WHERE position ILIKE '%HSE%' OR position ILIKE '%K3%'
+        ORDER BY position ASC
+        LIMIT 1
+    ");
+    $pic = pg_fetch_assoc($pic_q);
+    $pic_id = $pic ? "'" . $pic['id'] . "'" : "NULL";
+
+    pg_query($conn, "
+        INSERT INTO capa_items
+        (id, source_type, report_id, title, description, pic_employee_id, due_date, priority, status)
+        VALUES
+        (
+            gen_random_uuid(),
+            'report',
+            '$report_id',
+            '$capa_title',
+            '$capa_desc',
+            $pic_id,
+            (CURRENT_DATE + INTERVAL '$days days')::date,
+            '$severity',
+            'open'
+        )
+    ");
 
     header("Location: reports.php");
     exit;

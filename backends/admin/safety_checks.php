@@ -31,7 +31,7 @@ if (isset($_POST['add'])) {
 
     $notes         = $_POST['notes'];
 
-    pg_query($conn, "
+    $insert = pg_query($conn, "
 
         INSERT INTO safety_checks
         (
@@ -61,8 +61,54 @@ if (isset($_POST['add'])) {
             $is_compliant,
             '$notes'
         )
+        RETURNING id
 
     ");
+
+    $new_check = pg_fetch_assoc($insert);
+    $safety_check_id = $new_check['id'];
+
+
+    /* ===== AUTO-CREATE CAPA kalau hasil pengecekan FAIL ===== */
+    if ($is_compliant === 'FALSE') {
+
+        $failed_items = [];
+        if ($apd == 'FALSE')       $failed_items[] = 'APD tidak lengkap';
+        if ($briefing == 'FALSE')  $failed_items[] = 'Safety briefing belum dilakukan';
+        if ($jsa == 'FALSE')       $failed_items[] = 'JSA belum dipahami';
+        if ($equipment == 'FALSE') $failed_items[] = 'Peralatan belum dicek';
+
+        $capa_desc = pg_escape_string($conn,
+            'Ketidaksesuaian ditemukan: ' . implode(', ', $failed_items) . '. ' . $notes
+        );
+
+        /* cari PIC default: Manager HSE/K3 (fallback NULL kalau tidak ditemukan) */
+        $pic_q = pg_query($conn, "
+            SELECT id FROM employees
+            WHERE position ILIKE '%HSE%' OR position ILIKE '%K3%'
+            ORDER BY position ASC
+            LIMIT 1
+        ");
+        $pic = pg_fetch_assoc($pic_q);
+        $pic_id = $pic ? "'" . $pic['id'] . "'" : "NULL";
+
+        pg_query($conn, "
+            INSERT INTO capa_items
+            (id, source_type, safety_check_id, title, description, pic_employee_id, due_date, priority, status)
+            VALUES
+            (
+                gen_random_uuid(),
+                'safety_check',
+                '$safety_check_id',
+                'Tindak Lanjut Ketidaksesuaian SOP',
+                '$capa_desc',
+                $pic_id,
+                (CURRENT_DATE + INTERVAL '7 days')::date,
+                'medium',
+                'open'
+            )
+        ");
+    }
 
     header("Location: safety_checks.php");
     exit;
