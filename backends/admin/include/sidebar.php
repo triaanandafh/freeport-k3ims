@@ -116,7 +116,7 @@ function active($page, $current)
         </a>
 
         <div id="collapseSafety"
-            class="collapse <?= in_array($current_page, ['safety_checks','reports','documents','safety_checks','safety_report','capa']) ? 'show' : '' ?>"
+            class="collapse <?= in_array($current_page, ['safety_checks','reports','documents','safety_report','capa','sop']) ? 'show' : '' ?>"
             data-parent="#accordionSidebar">
 
             <div class="bg-white py-2 collapse-inner rounded">
@@ -141,48 +141,14 @@ function active($page, $current)
                     CAPA Tracking
                 </a>
 
-                <a class="collapse-item <?= active('documents', $current_page) ?>"
-                    href="documents.php">
-                    K3 Documents
-                </a>
-
-            </div>
-
-        </div>
-
-    </li>
-
-
-    <hr class="sidebar-divider">
-
-
-    <!-- SOP Management -->
-    <div class="sidebar-heading">
-        SOP Management
-    </div>
-
-    <li class="nav-item">
-
-        <a class="nav-link collapsed"
-            href="#"
-            data-toggle="collapse"
-            data-target="#collapseCompliance"
-            aria-expanded="true">
-
-            <i class="fas fa-fw fa-tasks"></i>
-            <span>SOP Management</span>
-
-        </a>
-
-        <div id="collapseCompliance"
-            class="collapse <?= in_array($current_page, ['sop']) ? 'show' : '' ?>"
-            data-parent="#accordionSidebar">
-
-            <div class="bg-white py-2 collapse-inner rounded">
-
                 <a class="collapse-item <?= active('sop', $current_page) ?>"
                     href="sop.php">
                     SOP Management
+                </a>
+
+                <a class="collapse-item <?= active('documents', $current_page) ?>"
+                    href="documents.php">
+                    K3 Documents
                 </a>
 
             </div>
