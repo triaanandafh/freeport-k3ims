@@ -1,6 +1,7 @@
 <?php
 session_start();
 require 'koneksi/koneksi.php';
+require 'koneksi/activity_logger.php';
 
 $error = '';
 
@@ -23,6 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['fullname'] = $user['fullname'];
         $_SESSION['role'] = $user['role'];
 
+        log_activity($conn, $user['id'], 'login', 'auth', "User {$user['fullname']} login sebagai {$user['role']}");
+
         if ($user['role'] == 'admin') {
             header("Location: admin/dashboard.php");
             exit;
@@ -34,6 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
     } else {
+
+        $email_safe = pg_escape_string($conn, $email);
+        log_activity($conn, null, 'login_failed', 'auth', "Percobaan login gagal untuk email: $email_safe");
+
         $error = "Email atau password salah";
     }
 }
