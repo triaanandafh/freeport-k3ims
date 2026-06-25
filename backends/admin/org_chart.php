@@ -22,7 +22,15 @@ $data = pg_query($conn, "
     JOIN departments
     ON employees.department_id = departments.id
 
-    ORDER BY departments.department_name ASC, employees.position ASC
+    ORDER BY
+        departments.department_name ASC,
+        CASE employees.org_level
+            WHEN 'Manager'    THEN 0
+            WHEN 'Supervisor' THEN 1
+            WHEN 'Staff'      THEN 2
+            ELSE 3
+        END ASC,
+        employees.fullname ASC
 
 ");
 
