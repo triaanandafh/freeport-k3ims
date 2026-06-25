@@ -42,5 +42,9 @@
 
 <script src="../vendor/chart.js/Chart.min.js"></script>
 
+<?php if (!empty($page_scripts)): ?>
+<?= $page_scripts ?>
+<?php endif; ?>
+
 </body>
 </html>

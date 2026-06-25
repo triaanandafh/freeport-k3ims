@@ -10,6 +10,10 @@ $current_page = "safety_report";
 /* filter bulan */
 $filter_month = isset($_GET['month']) ? $_GET['month'] : date('Y-m');
 
+if (!preg_match('/^\d{4}-\d{2}$/', $filter_month)) {
+    $filter_month = date('Y-m');
+}
+
 
 /* =========================
    REKAP PER DEPARTEMEN
@@ -147,7 +151,7 @@ require 'include/header.php';
 </div>
 
 
-<!-- Chart Bar -->
+<!-- Safety Rate per Departemen -->
 <div class="card shadow mb-4">
 
     <div class="card-header py-3">
@@ -158,7 +162,72 @@ require 'include/header.php';
 
     <div class="card-body">
 
-        <canvas id="safetyChart" height="100"></canvas>
+        <div class="row align-items-stretch">
+
+            <div class="col-lg-8 mb-4 mb-lg-0">
+                <div style="position: relative; min-height: 320px;">
+                    <canvas id="safetyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="font-weight-bold text-gray-800 mb-3">
+                    Ringkasan Departemen
+                </div>
+
+                <?php if (empty($rows)): ?>
+
+                <div class="text-center text-muted py-4">
+                    Belum ada departemen yang terdaftar.
+                </div>
+
+                <?php else: ?>
+
+                <div class="list-group">
+
+                    <?php foreach ($rows as $r): ?>
+                    <?php
+                    $rate_class = $r['safety_rate'] >= 80 ? 'success' : ($r['safety_rate'] >= 60 ? 'warning' : 'danger');
+                    $status_label = $r['total_checks'] == 0 ? 'Belum Ada Data' : ($r['audit_ready'] ? 'Audit Ready' : ($r['safety_rate'] >= 60 ? 'Perlu Perbaikan' : 'Tidak Memenuhi'));
+                    ?>
+
+                    <div class="list-group-item px-3 py-3">
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="font-weight-bold text-gray-800">
+                                <?= htmlspecialchars($r['department_name']) ?>
+                            </span>
+                            <span class="badge badge-<?= $rate_class ?>">
+                                <?= $r['safety_rate'] ?>%
+                            </span>
+                        </div>
+
+                        <div class="progress mb-2" style="height: 8px;">
+                            <div
+                                class="progress-bar bg-<?= $rate_class ?>"
+                                role="progressbar"
+                                style="width: <?= $r['safety_rate'] ?>%;"
+                                aria-valuenow="<?= $r['safety_rate'] ?>"
+                                aria-valuemin="0"
+                                aria-valuemax="100"></div>
+                        </div>
+
+                        <div class="small text-muted">
+                            <?= $status_label ?> &middot; <?= (int)$r['total_checks'] ?> checks
+                        </div>
+
+                    </div>
+
+                    <?php endforeach; ?>
+
+                </div>
+
+                <?php endif; ?>
+
+            </div>
+
+        </div>
 
     </div>
 
@@ -376,84 +445,72 @@ require 'include/header.php';
 </div>
 
 
-<!-- Chart.js Script -->
+<?php
+$chart_labels_json = json_encode($chart_labels);
+$chart_data_json = json_encode($chart_data);
+$chart_colors_json = json_encode($chart_colors);
+
+$page_scripts = <<<HTML
 <script>
-var ctx = document.getElementById('safetyChart').getContext('2d');
+(function() {
+    var canvas = document.getElementById('safetyChart');
 
-var chart = new Chart(ctx, {
-
-    type: 'bar',
-
-    data: {
-
-        labels: <?= json_encode($chart_labels) ?>,
-
-        datasets: [{
-            label: 'Safety Rate (%)',
-            data: <?= json_encode($chart_data) ?>,
-            backgroundColor: <?= json_encode($chart_colors) ?>,
-            borderColor: <?= json_encode($chart_colors) ?>,
-            borderWidth: 1
-        }]
-
-    },
-
-    options: {
-
-        responsive: true,
-
-        scales: {
-
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true,
-                    max: 100,
-                    callback: function(val) { return val + '%'; }
-                },
-                gridLines: {
-                    color: 'rgba(0,0,0,0.05)'
-                }
-            }]
-
-        },
-
-        plugins: {
-
-            annotation: {
-                annotations: [{
-                    type: 'line',
-                    mode: 'horizontal',
-                    scaleID: 'y-axis-0',
-                    value: 80,
-                    borderColor: '#e74a3b',
-                    borderWidth: 2,
-                    borderDash: [5,5],
-                    label: {
-                        enabled: true,
-                        content: 'Standar Minimum 80%',
-                        position: 'right'
-                    }
-                }]
-            }
-
-        },
-
-        tooltips: {
-            callbacks: {
-                label: function(item) {
-                    return ' ' + item.yLabel + '%';
-                }
-            }
-        },
-
-        legend: {
-            display: false
-        }
-
+    if (!canvas || typeof Chart === 'undefined') {
+        return;
     }
 
-});
+    new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: $chart_labels_json,
+            datasets: [{
+                label: 'Safety Rate (%)',
+                data: $chart_data_json,
+                backgroundColor: $chart_colors_json,
+                borderColor: $chart_colors_json,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        max: 100,
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    },
+                    gridLines: {
+                        color: 'rgba(0,0,0,0.05)'
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        autoSkip: false
+                    },
+                    gridLines: {
+                        display: false
+                    }
+                }]
+            },
+            tooltips: {
+                callbacks: {
+                    label: function(item) {
+                        return ' Safety Rate: ' + item.yLabel + '%';
+                    }
+                }
+            },
+            legend: {
+                display: false
+            }
+        }
+    });
+})();
 </script>
+HTML;
 
-
-<?php require 'include/footer.php'; ?>
+require 'include/footer.php';
+?>
