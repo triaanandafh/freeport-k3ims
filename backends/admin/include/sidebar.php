@@ -116,7 +116,7 @@ function active($page, $current)
         </a>
 
         <div id="collapseSafety"
-            class="collapse <?= in_array($current_page, ['safety_checks','reports','documents','safety_report','capa','sop']) ? 'show' : '' ?>"
+            class="collapse <?= in_array($current_page, ['safety_checks','reports','safety_report','capa','hazards']) ? 'show' : '' ?>"
             data-parent="#accordionSidebar">
 
             <div class="bg-white py-2 collapse-inner rounded">
@@ -141,6 +141,45 @@ function active($page, $current)
                     CAPA Tracking
                 </a>
 
+                <a class="collapse-item <?= active('hazards', $current_page) ?>"
+                    href="hazards.php">
+                    Hazard Identification
+                </a>
+
+            </div>
+
+        </div>
+
+    </li>
+
+
+    <hr class="sidebar-divider">
+
+
+    <!-- REFERENCE & DOCUMENTS -->
+    <div class="sidebar-heading">
+        Reference & Documents
+    </div>
+
+    <li class="nav-item">
+
+        <a class="nav-link collapsed"
+            href="#"
+            data-toggle="collapse"
+            data-target="#collapseReference"
+            aria-expanded="true">
+
+            <i class="fas fa-fw fa-book"></i>
+            <span>Reference & Documents</span>
+
+        </a>
+
+        <div id="collapseReference"
+            class="collapse <?= in_array($current_page, ['sop','documents']) ? 'show' : '' ?>"
+            data-parent="#accordionSidebar">
+
+            <div class="bg-white py-2 collapse-inner rounded">
+
                 <a class="collapse-item <?= active('sop', $current_page) ?>"
                     href="sop.php">
                     SOP Management
@@ -149,11 +188,6 @@ function active($page, $current)
                 <a class="collapse-item <?= active('documents', $current_page) ?>"
                     href="documents.php">
                     K3 Documents
-                </a>
-
-                <a class="collapse-item <?= active('hazards', $current_page) ?>"
-                    href="hazards.php">
-                    Hazard Identification
                 </a>
 
             </div>
