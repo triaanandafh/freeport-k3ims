@@ -62,7 +62,7 @@ function active($page, $current)
         </a>
 
         <div id="collapseSafety"
-            class="collapse <?= in_array($current_page, ['safety_checks','reports','capa','hazards','sop','documents']) ? 'show' : '' ?>"
+            class="collapse <?= in_array($current_page, ['safety_checks','reports','capa','hazards']) ? 'show' : '' ?>"
             data-parent="#accordionSidebar">
 
             <div class="bg-white py-2 collapse-inner rounded">
@@ -86,6 +86,40 @@ function active($page, $current)
                     href="hazards.php">
                     Hazard Identification
                 </a>
+
+            </div>
+
+        </div>
+
+    </li>
+
+
+    <hr class="sidebar-divider">
+
+
+    <!-- REFERENCE & DOCUMENTS -->
+    <div class="sidebar-heading">
+        Reference & Documents
+    </div>
+
+    <li class="nav-item">
+
+        <a class="nav-link collapsed"
+            href="#"
+            data-toggle="collapse"
+            data-target="#collapseReference"
+            aria-expanded="true">
+
+            <i class="fas fa-fw fa-book"></i>
+            <span>Reference & Documents</span>
+
+        </a>
+
+        <div id="collapseReference"
+            class="collapse <?= in_array($current_page, ['sop','documents']) ? 'show' : '' ?>"
+            data-parent="#accordionSidebar">
+
+            <div class="bg-white py-2 collapse-inner rounded">
 
                 <a class="collapse-item <?= active('sop', $current_page) ?>"
                     href="sop.php">
