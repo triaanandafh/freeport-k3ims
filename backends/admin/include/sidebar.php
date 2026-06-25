@@ -128,7 +128,7 @@ function active($page, $current)
 
                 <a class="collapse-item <?= active('safety_report', $current_page) ?>"
                     href="safety_report.php">
-                    Safety Report
+                    Safety Reports
                 </a>
 
                 <a class="collapse-item <?= active('reports', $current_page) ?>"
